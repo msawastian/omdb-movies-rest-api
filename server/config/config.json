@@ -1,0 +1,10 @@
+{
+  "test": {
+    "port": 3000,
+    "MONGODB_URI": "mongodb://127.0.0.1:27017/omdb-movies-test"
+  },
+  "development": {
+    "port": 3000,
+    "MONGODB_URI": "mongodb://localhost:27017/omdb-movies"
+  }
+}

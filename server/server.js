@@ -1,3 +1,5 @@
+require('./config/config.js');
+
 const apiKey = '3183d87d';
 
 const express = require('express');
@@ -8,9 +10,9 @@ const {mongoose} = require('./database/mongoose');
 const {Movie} = require('./models/movie');
 
 const app = express();
-const port = 3000; //change later to env variable
+const port = process.env.PORT; //change later to env variable
 
-app.use(bodyParser.json());
+app.use(bodyParser.json()); //required to parse request.body
 
 app.post('/movies', (request, response) => {
 
@@ -41,5 +43,8 @@ app.post('/movies', (request, response) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server up and running on port ${port}`)
+    console.log(`Server up and running on port ${port}`);
+    console.log(`Running in ${process.env.NODE_ENV} mode`);
 });
+
+module.exports = {app}; //for use in testing
