@@ -8,3 +8,5 @@ if (env === 'development' || env === 'test') {
         process.env[key] = envConfig[key];
     })
 }
+
+console.log(`Running in ${env} mode`);

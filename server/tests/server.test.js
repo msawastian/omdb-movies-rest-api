@@ -1,8 +1,10 @@
 const request = require('supertest');
 const expect = require('expect');
 
-
 const {app} = require('./../server');
+const {seedMovies, populateMovies} = require('./seed/seed');
+
+beforeEach(populateMovies);
 
 describe('POST /movies', () => {
     it('should add a new movie', () => {
@@ -24,7 +26,9 @@ describe('POST /movies', () => {
             .send({})
             .expect(400)
             .expect(response => {
-                expect(response.error).toBeTruthy()
+                expect(response.error).toBeTruthy();
+                expect(response.body).toMatchObject({error: "Movie name required!"});
+
             })
     });
 
@@ -35,7 +39,8 @@ describe('POST /movies', () => {
             .send({name})
             .expect(400)
             .expect(response => {
-                expect(response.error).toBeTruthy()
+                expect(response.error).toBeTruthy();
+                expect(response.body).toMatchObject({error: "Movie not found!"});
             })
     })
 });
