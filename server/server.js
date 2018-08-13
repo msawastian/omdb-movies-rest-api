@@ -80,6 +80,37 @@ app.post('/comments', (request, response) => {
         .catch(error => response.status(400).send({error: error.message}))
 });
 
+app.get('/comments/:id?', (request, response, next) => {
+    const movieID = request.params.id;
+
+    if (!movieID) { //fallback for cases where ID wasn't provided.
+        console.log('NEXT!');
+        next(); //calls route below
+        return
+    }
+
+    if (movieID && !ObjectID.isValid(movieID)) {
+        return response.status(404).send({
+            error: 'Not a valid comment ID!'
+        });
+    }
+
+    Comment.find(movieID ? {movieID: ObjectID(movieID)} : {})
+        .then(document => {
+            response.send(document)
+        })
+        .catch(error => response.status(400).send({error: error.message}))
+});
+
+app.get('/comments/', (request, response) => {
+
+    Comment.find({})
+        .then(document => {
+            response.send(document)
+        })
+        .catch(error => response.status(400).send({error: error.message}))
+});
+
 app.listen(port, () => {
     console.log(`Server up and running on port ${port}`);
 });
