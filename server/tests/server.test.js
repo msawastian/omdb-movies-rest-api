@@ -2,9 +2,10 @@ const request = require('supertest');
 const expect = require('expect');
 
 const {app} = require('./../server');
-const {seedMovies, populateMovies} = require('./seed/seed');
+const {seedMovies, seedComments, populateMovies, populateComments} = require('./seed/seed');
 
 beforeEach(populateMovies);
+beforeEach(populateComments);
 
 describe('POST /movies', () => {
     it('should add a new movie', () => {
