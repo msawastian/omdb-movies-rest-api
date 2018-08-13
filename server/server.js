@@ -84,7 +84,6 @@ app.get('/comments/:id?', (request, response, next) => {
     const movieID = request.params.id;
 
     if (!movieID) { //fallback for cases where ID wasn't provided.
-        console.log('NEXT!');
         next(); //calls route below
         return
     }
@@ -102,7 +101,7 @@ app.get('/comments/:id?', (request, response, next) => {
         .catch(error => response.status(400).send({error: error.message}))
 });
 
-app.get('/comments/', (request, response) => {
+app.get('/comments', (request, response) => {
 
     Comment.find({})
         .then(document => {
