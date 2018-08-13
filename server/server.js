@@ -58,10 +58,11 @@ app.get('/movies', (request, response, next) => {
         return
     }
 
+    if (criteria.indexOf(criterion) === -1) {
+        criterion = 'Title';
+    }
+
     if (action === 'sort') {
-        if (criteria.indexOf(criterion) === -1) {
-            criterion = 'Title';
-        }
 
         Movie.find({})
             .then(arrOfMovies => {
