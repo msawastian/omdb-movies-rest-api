@@ -1,0 +1,35 @@
+{
+  "name": "omdb-movies-rest-api",
+  "version": "1.0.0",
+  "description": "Yet another node REST API",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msawastian/omdb-movies-rest-api.git"
+  },
+  "keywords": [
+    "rest",
+    "api",
+    "movies",
+    "omdb"
+  ],
+  "author": "Mateusz Sawastian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/msawastian/omdb-movies-rest-api/issues"
+  },
+  "homepage": "https://github.com/msawastian/omdb-movies-rest-api#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "mongodb": "^3.1.1",
+    "mongoose": "^5.2.7"
+  },
+  "devDependencies": {
+    "jest": "^23.5.0",
+    "nodemon": "^1.18.3"
+  }
+}
