@@ -7,7 +7,8 @@ const CommentSchema = new mongoose.Schema({
     },
     text: {
         type: String,
-        required: true
+        required: true,
+        minlength: 1
     }
 });
 
