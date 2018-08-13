@@ -4,7 +4,7 @@
   "description": "Yet another node REST API",
   "main": "server/server.js",
   "scripts": {
-    "test": "export NODE_ENV=test || set \"NODE_ENV=test\" && mocha server/**/*.test.js --exit",
+    "test": "export NODE_ENV=test || set \"NODE_ENV=test\" && mocha server/**/*.test.js mocha --timeout 120000 --exit",
     "start": "node server/server.js"
   },
   "engines": {
@@ -36,6 +36,7 @@
   "devDependencies": {
     "expect": "^23.5.0",
     "mocha": "^5.2.0",
+    "mockgoose": "^7.3.5",
     "nodemon": "^1.18.3",
     "supertest": "^3.1.0"
   }

@@ -1,11 +1,12 @@
 const {ObjectID} = require('mongodb');
 const {Movie} = require('./../../models/movie');
+const {Comment} = require('./../../models/comment');
 
 const seedMovieOneID = new ObjectID();
 const seedMovieTwoID = new ObjectID();
 
-const seedMovies = {
-    seedMovieOne: {
+const seedMovies = [
+    {
         _id: seedMovieOneID,
         name: "Shrek",
         movieData: {
@@ -13,7 +14,7 @@ const seedMovies = {
             year: "2001"
         }
     },
-    seedMovieTwo: {
+    {
         _id: seedMovieTwoID,
         name: "Shrek 2",
         movieData: {
@@ -21,15 +22,35 @@ const seedMovies = {
             year: "2004"
         }
     }
+];
+
+const seedComments = [
+    {
+        _id: new ObjectID(),
+        movieID: seedMovieOneID,
+        text: 'Seed comment one!'
+    },
+    {
+        _id: new ObjectID(),
+        movieID: seedMovieTwoID,
+        text: 'Seed comment two!'
+    }
+];
+
+const populateMovies = () => {
+    return Movie.remove({}).then(() => Movie.insertMany(seedMovies))
+
 };
 
-const populateMovies = done => {
-    Movie.remove({})
-        .then(() => Movie.insertMany(seedMovies))
-        .then(() => done())
+const populateComments = () => {
+    return Comment.remove({}).then(() => Comment.insertMany(seedComments))
 };
+
+
 
 module.exports = {
     seedMovies,
+    seedComments,
+    populateComments,
     populateMovies
 };

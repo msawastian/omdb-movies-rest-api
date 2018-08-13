@@ -17,21 +17,20 @@ const port = process.env.PORT;
 app.use(bodyParser.json()); //required to parse request.body
 
 app.post('/movies', (request, response) => {
-    let movieData;
 
     if (!request.body.name) {
         return response.status(400).send({error: "Movie name required!"})
     }
 
-    axios.get(`https://www.omdbapi.com/?t=${request.body.name}&apikey=${apiKey}`)
+    axios.get(`https://www.omdbapi.com/?t=${encodeURIComponent(request.body.name)}&apikey=${apiKey}`)
         .then(response => {
             if (response.data.Response === 'False') {
                 throw new Error('Movie not found!')
             }
 
-            movieData = response.data
+            return response.data
         })
-        .then(() => {
+        .then(movieData => {
             let movie = new Movie({
                 name: request.body.name,
                 movieData
@@ -44,12 +43,7 @@ app.post('/movies', (request, response) => {
 });
 
 app.get('/movies', (request, response) => {
-
-    Movie.find({})
-        .then(movies => {
-            response.send(movies)
-        })
-
+    Movie.find({}).then(movies => response.send(movies))
 });
 
 app.post('/comments', (request, response) => {
@@ -57,7 +51,7 @@ app.post('/comments', (request, response) => {
         text = request.body.text;
 
     if (!ObjectID.isValid(movieID)) {
-        return response.status(404).send({
+        return response.status(400).send({
             error: 'Not a valid ID!'
         });
     }
@@ -94,8 +88,13 @@ app.get('/comments/:id?', (request, response, next) => {
         });
     }
 
-    Comment.find(movieID ? {movieID: ObjectID(movieID)} : {})
+
+    Comment.find({movieID: ObjectID(movieID)})
         .then(document => {
+            if (!document.length) {
+                return response.status(404).send({error: 'No movie with such ID in database or no comments for movie with this ID!'})
+            }
+
             response.send(document)
         })
         .catch(error => response.status(400).send({error: error.message}))
