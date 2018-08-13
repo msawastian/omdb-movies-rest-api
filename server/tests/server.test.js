@@ -1,8 +1,23 @@
+const mongoose = require('mongoose');
+const Mockgoose = require('mockgoose').Mockgoose;
+const mockgoose = new Mockgoose(mongoose);
+
+
+
 const request = require('supertest');
 const expect = require('expect');
 
 const {app} = require('./../server');
 const {seedMovies, seedComments, populateMovies, populateComments} = require('./seed/seed');
+
+before(done => {
+    mockgoose.prepareStorage()
+        .then(() => {
+            mongoose.connect("mongodb://localhost/omdb-test", {useNewUrlParser: true}, error => {
+                done(error)
+            })
+        } )
+});
 
 beforeEach(populateMovies);
 beforeEach(populateComments);
