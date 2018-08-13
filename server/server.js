@@ -42,7 +42,60 @@ app.post('/movies', (request, response) => {
         .catch(error => response.status(400).send({error: error.message}));
 });
 
+app.get('/movies', (request, response, next) => {
+
+    const action = request.header('action'),
+        actions = ['sort', 'filter'],
+        criteria = ['Title', 'Year', 'Metascore'],
+        ascending = (request.header('ascending') === 'true');
+
+    let movies = [],
+        criterion = request.header('criterion'),
+        query = request.header('query');
+
+    if (actions.indexOf(action) === -1) {
+        next();
+        return
+    }
+
+    if (action === 'sort') {
+        if (criteria.indexOf(criterion) === -1) {
+            criterion = 'Title';
+        }
+
+        Movie.find({})
+            .then(arrOfMovies => {
+                return arrOfMovies
+            })
+            .then(arrOfMovies => {
+                movies = arrOfMovies.sort((a, b) => {
+                    if (a.movieData[criterion] < b.movieData[criterion]) {
+                        return ascending ? -1 : 1
+                    }
+                    if (a.movieData[criterion] > b.movieData[criterion]) {
+                        return ascending ? 1 : -1
+                    }
+                    if (a.movieData[criterion] === b.movieData[criterion]) {
+                        return 0
+                    }
+                });
+                response.send(movies)
+            })
+            .catch(error => console.log(error));
+    }
+
+    if (action === 'filter') {
+        const key = 'movieData' + '.' + criterion; //mongoose doesn't support template strings
+        Movie.find({[key]: query})
+            .then(movies => {
+                response.send(movies)
+            })
+            .catch(error => console.log(error))
+    }
+});
+
 app.get('/movies', (request, response) => {
+    console.log('fallback');
     Movie.find({}).then(movies => response.send(movies))
 });
 
