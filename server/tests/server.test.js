@@ -1,23 +1,11 @@
 const request = require('supertest');
 const expect = require('expect');
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
 const {ObjectID} = require('mongodb');
 
-const mockgoose = new Mockgoose(mongoose);
 const {app} = require('./../server');
 const {Movie} = require('./../models/movie');
 const {Comment} = require('./../models/comment');
 const {seedMovies, seedComments, populateMovies, populateComments} = require('./seed/seed');
-
-before(done => {
-    mockgoose.prepareStorage()
-        .then(() => {
-            mongoose.connect('mongodb://localhost/omdb-test', {useNewUrlParser: true}, error => {
-                done(error)
-            })
-        } )
-});
 
 beforeEach(populateMovies);
 beforeEach(populateComments);
@@ -86,6 +74,108 @@ describe('GET /movies', () => {
             .get('/movies')
             .expect(200)
             .expect(response => expect(response.body.length).toBe(2))
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies sorted by title (ascending)', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'sort',
+                'criterion': 'Title',
+                'direction': 'ascending'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Die Hard')
+            })
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies sorted by year (descending)', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'sort',
+                'criterion': 'Year',
+                'direction': 'descending'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Die Hard')
+            })
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies sorted by Metascore (ascending)', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'sort',
+                'criterion': 'Metascore',
+                'direction': 'ascending'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Die Hard')
+            })
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies filtered by title', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'filter',
+                'criterion': 'Title',
+                'query': 'Die Hard'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Die Hard')
+            })
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies filtered by year', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'filter',
+                'criterion': 'Year',
+                'query': '2001'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Shrek')
+            })
+            .catch((error) => {
+                throw new Error(error)
+            })
+    });
+
+    it('should return a list of movies filtered by Metascore', () => {
+        return request(app)
+            .get('/movies')
+            .set({
+                'action': 'filter',
+                'criterion': 'Metascore',
+                'query': '91'
+            })
+            .expect(200)
+            .expect(response => {
+                expect(response.body[0].movieData.Title).toBe('Shrek')
+            })
             .catch((error) => {
                 throw new Error(error)
             })

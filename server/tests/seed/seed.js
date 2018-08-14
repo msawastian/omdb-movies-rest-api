@@ -10,16 +10,18 @@ const seedMovies = [
         _id: seedMovieOneID,
         name: "Shrek",
         movieData: {
-            title: "Shrek",
-            year: "2001"
+            Title: "Shrek",
+            Year: "2001",
+            Metascore: '91'
         }
     },
     {
         _id: seedMovieTwoID,
-        name: "Shrek 2",
+        name: "Die Hard",
         movieData: {
-            title: "Shrek 2",
-            year: "2004"
+            Title: "Die Hard",
+            Year: "2004",
+            Metascore: '84'
         }
     }
 ];

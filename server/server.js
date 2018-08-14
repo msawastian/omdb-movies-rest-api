@@ -1,7 +1,5 @@
 require('./config/config.js');
 
-const apiKey = '3183d87d';
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -22,7 +20,7 @@ app.post('/movies', (request, response) => {
         return response.status(400).send({error: "Movie name required!"})
     }
 
-    axios.get(`https://www.omdbapi.com/?t=${encodeURIComponent(request.body.name)}&apikey=${apiKey}`)
+    axios.get(`https://www.omdbapi.com/?t=${encodeURIComponent(request.body.name)}&apikey=${process.env.OMDB_API_KEY}`)
         .then(response => {
             if (response.data.Response === 'False') {
                 throw new Error('Movie not found!')
@@ -45,20 +43,31 @@ app.post('/movies', (request, response) => {
 app.get('/movies', (request, response, next) => {
 
     const action = request.header('action'),
-        actions = ['sort', 'filter'],
-        criteria = ['movieData.Title', 'movieData.Year', 'movieData.Metascore'],
-        direction = request.header('direction');
+        actions = ['sort', 'filter'];
 
-    let criterion = 'movieData' + '.' + request.header('criterion'), //concatenate strings to make a valid mongoose query
-        query = request.header('query');
-
-    if (actions.indexOf(action) === -1) {
+    if (actions.indexOf(action) === -1) { //call next route if no action header or invalid action header found
         next();
         return
     }
 
-    if (criteria.indexOf(criterion) === -1) {
+    const criteria = ['movieData.Title', 'movieData.Year', 'movieData.Metascore']; //array of valid mongoose queries
+    let criterion = 'movieData' + '.' + request.header('criterion'); //concatenate strings to make a valid mongoose query
+
+    const directions = ['ascending', 'descending']; //array of valid sorting directions
+    let direction = request.header('direction');
+
+    const query = request.header('query');
+
+    if (criteria.indexOf(criterion) === -1) { //default to Title if invalid criterion specified
         criterion = 'movieData.Title';
+    }
+
+    if (directions.indexOf(direction) === -1) { //default to ascending if invalid direction specified
+        direction = 'ascending'
+    }
+
+    if (action === 'filter' && !query) { //respond with error if given no query header or empty query header
+        return response.status(400).send({error: 'Query header required to filter movie list!'})
     }
 
     switch (action) {
@@ -74,15 +83,16 @@ app.get('/movies', (request, response, next) => {
         case 'filter':
             Movie.find({[criterion]: query})
                 .then(movies => {
+                    if (!movies.length) {
+                        throw new Error('No movies matching given query were found in the database!')
+                    }
                     response.send(movies)
                 })
-                .catch(error => response.status(400).send({error: error.message}));
-
+                .catch(error => response.status(404).send({error: error.message}));
     }
 });
 
 app.get('/movies', (request, response) => {
-    console.log('fallback');
     Movie.find({}).then(movies => response.send(movies))
 });
 
@@ -96,7 +106,7 @@ app.post('/comments', (request, response) => {
         });
     }
 
-    Movie.findById(ObjectID(movieID))
+    Movie.findById(movieID)
         .then(document => {
             if (!document) {
                 throw new Error('No movie with such ID in database!')
@@ -122,14 +132,13 @@ app.get('/comments/:id?', (request, response, next) => {
         return
     }
 
-    if (movieID && !ObjectID.isValid(movieID)) {
+    if (!ObjectID.isValid(movieID)) {
         return response.status(404).send({
             error: 'Not a valid comment ID!'
         });
     }
 
-
-    Comment.find({movieID: ObjectID(movieID)})
+    Comment.find({movieID: movieID})
         .then(document => {
             if (!document.length) {
                 return response.status(404).send({error: 'No movie with such ID in database or no comments for movie with this ID!'})
@@ -141,11 +150,8 @@ app.get('/comments/:id?', (request, response, next) => {
 });
 
 app.get('/comments', (request, response) => {
-
     Comment.find({})
-        .then(document => {
-            response.send(document)
-        })
+        .then(document => response.send(document))
         .catch(error => response.status(400).send({error: error.message}))
 });
 
