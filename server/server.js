@@ -46,11 +46,10 @@ app.get('/movies', (request, response, next) => {
 
     const action = request.header('action'),
         actions = ['sort', 'filter'],
-        criteria = ['Title', 'Year', 'Metascore'],
-        ascending = (request.header('ascending') === 'true');
+        criteria = ['movieData.Title', 'movieData.Year', 'movieData.Metascore'],
+        direction = request.header('direction');
 
-    let movies = [],
-        criterion = request.header('criterion'),
+    let criterion = 'movieData' + '.' + request.header('criterion'), //concatenate strings to make a valid mongoose query
         query = request.header('query');
 
     if (actions.indexOf(action) === -1) {
@@ -59,30 +58,16 @@ app.get('/movies', (request, response, next) => {
     }
 
     if (criteria.indexOf(criterion) === -1) {
-        criterion = 'Title';
+        criterion = 'movieData.Title';
     }
 
     if (action === 'sort') {
-
         Movie.find({})
-            .then(arrOfMovies => {
-                return arrOfMovies
+            .sort({
+                [criterion]: direction
             })
-            .then(arrOfMovies => {
-                movies = arrOfMovies.sort((a, b) => {
-                    if (a.movieData[criterion] < b.movieData[criterion]) {
-                        return ascending ? -1 : 1
-                    }
-                    if (a.movieData[criterion] > b.movieData[criterion]) {
-                        return ascending ? 1 : -1
-                    }
-                    if (a.movieData[criterion] === b.movieData[criterion]) {
-                        return 0
-                    }
-                });
-                response.send(movies)
-            })
-            .catch(error => console.log(error));
+            .then(movies => response.send(movies))
+            .catch(error => response.status(400).send({error: error.message}))
     }
 
     if (action === 'filter') {
