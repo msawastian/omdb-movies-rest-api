@@ -21,7 +21,7 @@
     "omdb"
   ],
   "author": "Mateusz Sawastian",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/msawastian/omdb-movies-rest-api/issues"
   },
