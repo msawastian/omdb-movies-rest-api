@@ -61,22 +61,23 @@ app.get('/movies', (request, response, next) => {
         criterion = 'movieData.Title';
     }
 
-    if (action === 'sort') {
-        Movie.find({})
-            .sort({
-                [criterion]: direction
-            })
-            .then(movies => response.send(movies))
-            .catch(error => response.status(400).send({error: error.message}))
-    }
+    switch (action) {
+        case 'sort':
+            Movie.find({})
+                .sort({
+                    [criterion]: direction
+                })
+                .then(movies => response.send(movies))
+                .catch(error => response.status(400).send({error: error.message}));
+            break;
 
-    if (action === 'filter') {
-        const key = 'movieData' + '.' + criterion; //mongoose doesn't support template strings
-        Movie.find({[key]: query})
-            .then(movies => {
-                response.send(movies)
-            })
-            .catch(error => console.log(error))
+        case 'filter':
+            Movie.find({[criterion]: query})
+                .then(movies => {
+                    response.send(movies)
+                })
+                .catch(error => response.status(400).send({error: error.message}));
+
     }
 });
 
